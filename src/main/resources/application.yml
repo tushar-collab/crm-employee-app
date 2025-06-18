@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  main: 
+    banner-mode: console
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    # show-sql: true
+    properties: 
+      hibernate: 
+        lock: 
+          timeout: 10000
+
+employeeManagement:
+  startupConfigs:
+    thirdPartyApi: "https://dummyjson.com/users"
+
+management: 
+  endpoints: 
+    web: 
+      exposure: 
+        include: "*"
+    health: 
+      show-details: always
+  health:
+    circuitbreakers: 
+      enabled: true
+    ratelimiters:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalApiCallerCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 100
+        minimumNumberOfCalls: 1
+        failureRateThreshold: 5
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 10
+        slidingWindowType: COUNT_BASED
+        automaticTransitionFromOpenToHalfOpenEnabled: true
