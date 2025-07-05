@@ -32,8 +32,7 @@ public class PerformanceReview implements Comparable<PerformanceReview> {
 
     @Column(name = "review_date")
     @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
-
+    @Temporal(TemporalType.DATE)
     private Date reviewDate;
 
     @Column(name = "score", precision = 2, scale = 2)

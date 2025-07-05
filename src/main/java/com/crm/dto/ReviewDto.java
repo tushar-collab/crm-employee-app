@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ReviewDto {
 
-    private Long reviewId;
+    private Long id;
     private String reviewDate;
     private BigDecimal score;
     private String comments;

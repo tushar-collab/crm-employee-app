@@ -1,5 +1,6 @@
 package com.crm.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,12 +23,12 @@ import com.crm.dto.ResponseDto;
 import com.crm.service.EmployeeService;
 import com.crm.service.impl.EmployeeServiceImpl;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-@RestController
 @RequestMapping(path = "/crm", produces = { MediaType.APPLICATION_JSON_VALUE })
+@CrossOrigin(origins = "http://localhost:3001", allowedHeaders = "*")
+@RestController
 @Validated
 public class EmployeeController {
 
@@ -46,7 +48,8 @@ public class EmployeeController {
         if (employeeId <= 0) {
             LOG.warn("Invalid employee ID: {}", id);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseDto(false, 0, "employee id must be greater than 0", "BAD REQUEST", null));
+                    .body(new ResponseDto(false, new Date(), 0, "employee id must be greater than 0", "BAD REQUEST",
+                            null));
         }
         EmployeeDto employeeDto = employeeService.fetchEmployeeData(employeeId);
         if (employeeDto != null) {
@@ -69,7 +72,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/fetch")
-    public ResponseEntity<ResponseDto> filterEmployees(@Valid @RequestBody JSONObject filterCriteria) {
+    public ResponseEntity<ResponseDto> filterEmployees(@RequestBody JSONObject filterCriteria) {
         LOG.info("Fetching all employees");
         List<EmployeeDto> employees = employeeService.fetchAllEmployees(filterCriteria);
         LOG.info("Total employees fetched: {}", employees.size());
@@ -80,6 +83,7 @@ public class EmployeeController {
             responseDto.setMessage("No employees found matching the criteria.");
             responseDto.setErrorCode("NO_EMPLOYEES_FOUND");
             responseDto.setCount(0);
+            responseDto.setTimeStamp(new Date());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
         } else {
             ResponseDto responseDto = new ResponseDto();
@@ -87,6 +91,7 @@ public class EmployeeController {
             responseDto.setMessage("All employees fetched successfully.");
             responseDto.setData(employees);
             responseDto.setCount(employees.size());
+            responseDto.setTimeStamp(new Date());
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
         }
     }
