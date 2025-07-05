@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +22,7 @@ public class EmployeeMapper {
 
     private static final Logger LOG = LogManager.getLogger(EmployeeMapper.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public static EmployeeDto mapToEmployeeDto(Employee employee, Set<EmployeeProject> employeeProjects,
             Set<PerformanceReview> reviews) {
@@ -50,7 +51,7 @@ public class EmployeeMapper {
                                     employee.getId());
                             Project project = ep.getProject();
                             ProjectDto projectDto = new ProjectDto();
-                            projectDto.setProjectId(Long.valueOf(project.getId()));
+                            projectDto.setId(Long.valueOf(project.getId()));
                             projectDto.setProjectName(project.getName());
                             Date startDate = project.getStartDate();
                             Date endDate = project.getEndDate();
@@ -65,7 +66,7 @@ public class EmployeeMapper {
                                             : "No Department");
                             return projectDto;
                         })
-                        .toList();
+                        .collect(Collectors.toList());
                 employeeDto.setProjects(projectDtos);
             } else {
                 employeeDto.setProjects(List.of());
@@ -79,13 +80,13 @@ public class EmployeeMapper {
                             LOG.debug("Mapping review ID: {} for employee ID: {}", review.getId(),
                                     employee.getId());
                             ReviewDto reviewDto = new ReviewDto();
-                            reviewDto.setReviewId(review.getId());
-                            reviewDto.setReviewDate(dateFormat.format(review.getReviewDate()));
+                            reviewDto.setId(review.getId());
+                            reviewDto.setReviewDate(review.getReviewDate().toString());
                             reviewDto.setScore(review.getScore());
                             reviewDto.setComments(review.getReviewComments());
                             return reviewDto;
                         })
-                        .toList();
+                        .collect(Collectors.toList());
             }
             employeeDto.setPerformanceReviews(reviewDtos);
         } catch (Exception e) {

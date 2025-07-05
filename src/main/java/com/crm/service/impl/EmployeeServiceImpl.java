@@ -55,17 +55,12 @@ public class EmployeeServiceImpl implements EmployeeService {
       Employee employee = employeeRepository.findById(id)
           .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", String.valueOf(id)));
 
-      if (employee == null) {
-        LOG.error("Employee not found for ID: {}", id);
-        throw new ResourceNotFoundException("Employee", "id", String.valueOf(id));
-      }
-
       Set<PerformanceReview> reviews = employee.getPerformanceReviews();
       if (reviews != null && !reviews.isEmpty()) {
         if (reviews.size() > maxReviewsCount) {
           LOG.info("Limiting reviews to the latest {} for employee ID: {}", maxReviewsCount, id);
           reviews = reviews.stream()
-              .sorted((r1, r2) -> r2.getReviewDate().compareTo(r1.getReviewDate()))
+              .sorted((r1, r2) -> r1.getReviewDate().compareTo(r2.getReviewDate()))
               .limit(maxReviewsCount)
               .collect(Collectors.toSet());
         }
@@ -113,15 +108,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (filterCriteria.containsKey("reviewDate")) {
           String reviewDateStr = (String) filterCriteria.get("reviewDate");
           if (reviewDateStr != null && !reviewDateStr.isEmpty()) {
+             java.sql.Date reviewDate = java.sql.Date.valueOf(reviewDateStr);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            try {
-              LOG.info("Filtering employees by review date: {}", reviewDateStr);
-              Date reviewDate = dateFormat.parse(reviewDateStr);
-              Timestamp timestamp = new Timestamp(reviewDate.getTime());
-              predicates.add(criteriaBuilder.equal(root.join("performanceReviews").get("reviewDate"), timestamp));
-            } catch (ParseException e) {
-              LOG.error("Error parsing review date: {}", reviewDateStr, e);
-            }
+            predicates.add(criteriaBuilder.equal(root.join("performanceReviews").get("reviewDate"), reviewDate));
+            // try {
+            // LOG.info("Filtering employees by review date: {}", reviewDateStr);
+            // Date reviewDate = dateFormat.parse(reviewDateStr);
+            // } catch (ParseException e) {
+            // LOG.error("Error parsing review date: {}", reviewDateStr, e);
+            // }
           }
         }
 
@@ -143,11 +138,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     } else {
       LOG.info("Total employees fetched: {}", employees.size());
       List<EmployeeDto> employeeDtos = new ArrayList<>();
-      for (Employee employee : employees) {
+      employees.forEach(employee -> {
         EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee, employee.getEmployeeProjects(),
             employee.getPerformanceReviews());
         employeeDtos.add(employeeDto);
-      }
+      });
       return employeeDtos;
     }
 
