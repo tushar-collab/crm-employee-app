@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 
 @SpringBootApplication
-@OpenAPIDefinition(info = @Info(title = "Advanced User Details", version = "1.0", description = "Advanced User Details - backend", contact = @Contact(name = "Tushar Singhal", email = "tushar.singhalts01@gmail.com")))
+@OpenAPIDefinition(info = @Info(title = "Advanced User Details App", version = "1.0", description = "Advanced User Details - backend", contact = @Contact(name = "Tushar Singhal", email = "tushar.singhalts01@gmail.com")))
 
 public class EmployeeManagementApplication {
 
